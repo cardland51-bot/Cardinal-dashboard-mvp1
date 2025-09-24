@@ -250,6 +250,198 @@ document.getElementById("addItemForm").addEventListener("submit", function(e){
       setTimeout(()=>ul.firstChild.classList.remove('new-highlight'),2000);
   }
 
+  <div id="appointments"></div>
+
+<!-- Modal -->
+<div id="modal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <h2>Appointment Details</h2>
+    <p><strong>Address:</strong> <span id="modal-address"></span></p>
+    <p><strong>Scope:</strong> <span id="modal-scope"></span></p>
+    <p><strong>Tools:</strong> <span id="modal-tools"></span></p>
+    <p><strong>Debris:</strong> <span id="modal-debris"></span></p>
+    <p><strong>On Site?</strong> <span id="modal-onsite"></span></p>
+    <p><strong>Haul Off?</strong> <span id="modal-hauloff"></span></p>
+  </div>
+</div>
+
+<style>
+  .appointment { cursor: pointer; padding: 10px; border: 1px solid #ccc; margin-bottom: 5px; border-radius:5px; background:#f9f9f9; }
+  .appointment:hover { background: #e6f7ff; }
+  .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+           background: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
+  .modal-content { background: white; padding: 20px; border-radius: 8px; width: 350px; box-shadow: 0 5px 15px rgba(0,0,0,0.3);}
+  .close { float: right; cursor: pointer; font-size: 20px; }
+</style>
+
+<div id="appointments-container">
+  <h2>Upcoming Appointments</h2>
+  <div id="appointments"></div>
+</div>
+
+<!-- Modal -->
+<div id="modal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <h2>Appointment Details</h2>
+    <p><strong>Address:</strong> <span id="modal-address"></span></p>
+    <p><strong>Scope:</strong> <span id="modal-scope"></span></p>
+    <p><strong>Tools:</strong> <span id="modal-tools"></span></p>
+    <p><strong>Debris:</strong> <span id="modal-debris"></span></p>
+    <p><strong>On Site?</strong> <span id="modal-onsite"></span></p>
+    <p><strong>Haul Off?</strong> <span id="modal-hauloff"></span></p>
+  </div>
+</div>
+
+<style>
+/* Container & heading */
+#appointments-container {
+  width: 100%;
+  max-width: 600px;
+  margin: 20px auto;
+  font-family: Arial, sans-serif;
+}
+#appointments-container h2 {
+  margin-bottom: 15px;
+  font-size: 20px;
+  color: #333;
+}
+
+/* Appointment boxes */
+#appointments {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.appointment {
+  cursor: pointer;
+  padding: 12px 15px;
+  border-left: 5px solid #007bff; /* matches dashboard accent */
+  background: #f1f5f9;
+  border-radius: 5px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  font-weight: 500;
+  transition: background 0.2s;
+}
+.appointment:hover {
+  background: #e0f0ff;
+}
+
+/* Modal */
+.modal { 
+  display: none; 
+  position: fixed; 
+  top: 0; left: 0; 
+  width: 100%; height: 100%; 
+  background: rgba(0,0,0,0.5); 
+  justify-content: center; 
+  align-items: center; 
+}
+.modal-content { 
+  background: white; 
+  padding: 25px 20px; 
+  border-radius: 8px; 
+  width: 350px; 
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  font-size: 14px;
+}
+.close { 
+  float: right; 
+  cursor: pointer; 
+  font-size: 20px; 
+}
+</style>
+
+<script>
+const sheetURL = 'https://docs.google.com/spreadsheets/d/1_hCWSkplen_HTtVLsHOXoP-3xHqebCCIk6_adTaUua8/export?format=csv&gid=0';
+
+function csvToArray(csv, delimiter = ',') {
+  const [headerLine, ...lines] = csv.trim().split('\n');
+  const headers = headerLine.split(delimiter);
+  return lines.map(line => {
+    const values = line.split(delimiter);
+    return headers.reduce((obj, h, i) => ({ ...obj, [h]: values[i] }), {});
+  });
+}
+
+const container = document.getElementById('appointments');
+const modal = document.getElementById('modal');
+const closeBtn = modal.querySelector('.close');
+
+fetch(sheetURL)
+  .then(res => res.text())
+  .then(csvText => {
+    let appointments = csvToArray(csvText);
+
+    // Sort by Date
+    appointments.sort((a,b) => new Date(a.Date) - new Date(b.Date));
+
+    appointments.forEach(app => {
+      const div = document.createElement('div');
+      div.classList.add('appointment');
+      div.textContent = `${app.Name} - ${app.Date}`;
+      
+      div.addEventListener('click', () => {
+        document.getElementById('modal-address').textContent = app.Address;
+        document.getElementById('modal-scope').textContent = app.Scope;
+        document.getElementById('modal-tools').textContent = app.Tools;
+        document.getElementById('modal-debris').textContent = app.Debris;
+        document.getElementById('modal-onsite').textContent = app.OnSite;
+        document.getElementById('modal-hauloff').textContent = app.HaulOff;
+        modal.style.display = 'flex';
+      });
+
+      container.appendChild(div);
+    });
+  })
+  .catch(err => console.error('Error loading appointments:', err));
+
+closeBtn.addEventListener('click', () => modal.style.display = 'none');
+window.addEventListener('click', (e) => { if(e.target === modal) modal.style.display = 'none'; });
+</script>
+
+function csvToArray(csv, delimiter = ',') {
+  const [headerLine, ...lines] = csv.trim().split('\n');
+  const headers = headerLine.split(delimiter);
+  return lines.map(line => {
+    const values = line.split(delimiter);
+    return headers.reduce((obj, h, i) => ({ ...obj, [h]: values[i] }), {});
+  });
+}
+
+const container = document.getElementById('appointments');
+const modal = document.getElementById('modal');
+const closeBtn = modal.querySelector('.close');
+
+fetch(sheetURL)
+  .then(res => res.text())
+  .then(csvText => {
+    const appointments = csvToArray(csvText);
+
+    appointments.forEach(app => {
+      const div = document.createElement('div');
+      div.classList.add('appointment');
+      div.textContent = `${app.Name} - ${app.Date}`;
+      
+      div.addEventListener('click', () => {
+        document.getElementById('modal-address').textContent = app.Address;
+        document.getElementById('modal-scope').textContent = app.Scope;
+        document.getElementById('modal-tools').textContent = app.Tools;
+        document.getElementById('modal-debris').textContent = app.Debris;
+        document.getElementById('modal-onsite').textContent = app.OnSite;
+        document.getElementById('modal-hauloff').textContent = app.HaulOff;
+        modal.style.display = 'flex';
+      });
+
+      container.appendChild(div);
+    });
+  })
+  .catch(err => console.error('Error loading appointments:', err));
+
+closeBtn.addEventListener('click', () => modal.style.display = 'none');
+window.addEventListener('click', (e) => { if(e.target === modal) modal.style.display = 'none'; });
+</script>
   // Reset form
   document.getElementById("addItemForm").reset();
 });
